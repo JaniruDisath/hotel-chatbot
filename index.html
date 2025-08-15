@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+
+</head>
+
+<body>
+
+    <div class="main-content-wrapper flex justify-center items-start gap-4 p-4">
+
+        <!-- Left side content -->
+        <div style="width: 70%; float: left; padding-left: 1%; padding-right: 1%; ;">
+
+
+            <div class="col" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400">
+
+                <div style=" padding: 1% ;height: 59vh; display: flex; justify-content: center; align-items: center;"
+                    class="cardsss w-full">
+
+                    <div id="info-panel" class="columnImg" style="width: 100%; height: 100%;">
+
+                        <h1 style=" padding: 1% ;height: 59vh; display: flex; justify-content: center; align-items: center;" class="gradient-text">Welcome to <br> Leisure Land Villa .</h1>
+
+
+                        <div id="info-panel-H" style="width: 100%; margin: 1%;" class="row" data-aos="fade-up"
+                            data-aos-duration="1000" data-aos-delay="250">
+
+                        </div>
+
+                    </div>
+
+
+
+
+                </div>
+            </div>
+
+            <div class="col" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400" style="margin-top: 5vh;">
+
+                <div style=" padding: 1%  ; padding-left: 2%; height: 30vh; " class="cardsss w-screen">
+
+                    <div class="card-body  justify-center ">
+                        <div>
+
+                            <div style="height: 29vh;" class="scroll-wrapper">
+                                <button class="scroll-btn left" onclick="scrollLeft()">&#8249;</button>
+                                <div id="card-list-body" style="height: 29vh;" class="scroll-container">
+
+
+
+
+                                </div>
+                                <button class="scroll-btn right" onclick="scrollRight()">&#8250;</button>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+        </div>
+        
+
+
+
+        <!-- Right side content -->
+
+        <div style="width: 30%; float: right; padding-left: 1%; padding-right: 1%; " data-aos="fade-up"
+            data-aos-duration="1000" data-aos-delay="400">
+            <div style="height: 94vh; "
+                class="w-full  p-4 bg-white border border-gray-200 rounded-lg shadow-sm  dark:bg-gray-800 dark:border-gray-700">
+
+                <h5 style="margin-bottom: 5%;" class="text-xl font-bold leading-none text-gray-900 dark:text-white">
+                    Chat
+                </h5>
+
+
+                <div style="overflow-y: auto; height: 75vh; border: 2px solid black;"
+                    class="w-full  p-4 bg-white rounded-lg dark:bg-gray-800 dark:border-gray-700">
+                    <div id="chatArea" class="flow-root">
+
+                        <div style="margin-bottom: 5%;" class="flex items-start gap-2.5" data-aos="fade-up"
+                            data-aos-duration="1000" data-aos-delay="500">
+                            <img class="w-8 h-8 rounded-full" src="/assets/img/leisrue Land Logo.jpg" alt="Jese image"
+                                style="border: 2px solid black;">
+
+                            <div
+                                class="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">Hotel Help
+                                        Assistant</span>
+                                </div>
+                                <p class="text-sm font-normal py-2.5 text-gray-900 dark:text-white">Hello. How can I
+                                    assit you today ?</p>
+                            </div>
+
+
+                        </div>
+
+
+
+                        <!-- <img src="/assets/img/dayout/dayout-pic.jpg" alt="Dayout Image"> -->
+
+                    </div>
+
+                </div>
+
+                <div style="margin-top: 5%;" class="chat-input-container">
+                    <input id="chatInput" type="text" placeholder="Type your message...">
+                    <button onclick="sendHotelMessage()">Send</button>
+                </div>
+
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+    <script src="/src/JavaScriptFiles/hotelInfoArray.js"></script>
+    <script src="/src/JavaScriptFiles/menuList.js"></script>
+    <script src="basicFunctions.js"></script>
+    <script type="module" src="script.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        AOS.init();
+    </script>
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js" type="module"></script>
+
+</body>
+
+</html>
