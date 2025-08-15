@@ -143,22 +143,22 @@ async function sendHotelMessage() {
 
  
 
-  const input = document.getElementById("chatInput");
-  const messageText = input.value.trim();
-  console.log(messageText);
-   sendMessage();
+  // const input = document.getElementById("chatInput");
+  // const messageText = input.value.trim();
+  // console.log(messageText);
+  //  sendMessage();
 
-  const result = await chat.sendMessage(messageText);
-  const fullResponse = result.response.text();
+  // const result = await chat.sendMessage(messageText);
+  // const fullResponse = result.response.text();
 
-  console.log("Chat response:", fullResponse);
+  // console.log("Chat response:", fullResponse);
 
-  const [keywords, message] = fullResponse.split('|').map(s => s.trim());
-  const keywordArray = keywords.split(':').map(s => s.trim());
-  console.log("Parsed keywords:", keywordArray);
-  console.log("Parsed message:", message);
+  // const [keywords, message] = fullResponse.split('|').map(s => s.trim());
+  // const keywordArray = keywords.split(':').map(s => s.trim());
+  // console.log("Parsed keywords:", keywordArray);
+  // console.log("Parsed message:", message);
 
-  sendBotMessage(message);
+  // sendBotMessage(message);
 
   console.log(keywordArray[0]);
 
@@ -195,25 +195,25 @@ async function sendHotelMessage() {
 
 async function sendSystemMessage(inputMessage) {
 
-  const messageText = (inputMessage || "").trim();
+  // const messageText = (inputMessage || "").trim();
 
-  const result = await chat.sendMessage(messageText);
-  const fullResponse = result.response.text();
+  // const result = await chat.sendMessage(messageText);
+  // const fullResponse = result.response.text();
 
-  console.log("Chat response:", fullResponse);
+  // console.log("Chat response:", fullResponse);
 
-  const [keywords, message] = fullResponse.split('|').map(s => s.trim());
-  const keywordArray = keywords.split(':').map(s => s.trim());
-  console.log("Parsed keywords:", keywordArray);
-  console.log("Parsed message:", message);
+  // const [keywords, message] = fullResponse.split('|').map(s => s.trim());
+  // const keywordArray = keywords.split(':').map(s => s.trim());
+  // console.log("Parsed keywords:", keywordArray);
+  // console.log("Parsed message:", message);
 
-  sendBotMessage(message);
+  // sendBotMessage(message);
 
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
-  await runChat();
-});
+// window.addEventListener("DOMContentLoaded", async () => {
+//   await runChat();
+// });
 
 
 
