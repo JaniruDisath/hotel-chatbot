@@ -99,7 +99,7 @@ body {
     height: calc(100vh - (var(--page-gap) * 2));
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
     margin-right: calc(var(--chat-reserve) - var(--page-gap));
 }
 
@@ -159,6 +159,11 @@ body {
     overflow: hidden;
 }
 
+.info-panel .hero-panel {
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
 .content-strip {
     position: relative;
     flex: 0 0 auto;
@@ -169,7 +174,7 @@ body {
 .carousel-shell {
     height: auto;
     min-height: 0;
-    padding: 14px 16px;
+    padding: 12px 14px;
     overflow: hidden;
 }
 
@@ -353,6 +358,7 @@ body {
     margin: 0;
     font-size: clamp(1.4rem, 2.4vw, 2.2rem);
     font-weight: 800;
+    line-height: 1.15;
     color: var(--ink);
 }
 
@@ -414,6 +420,18 @@ body {
     color: var(--ink);
 }
 
+.tag-button {
+    cursor: pointer;
+    line-height: 1;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tag-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(16, 94, 0, 0.5);
+    box-shadow: 0 8px 18px rgba(16, 94, 0, 0.1);
+}
+
 .prompt-pill {
     padding: 8px 14px;
     border-radius: 999px;
@@ -454,8 +472,13 @@ body {
 }
 
 .info-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     margin-top: 10px;
+}
+
+.info-panel .info-grid {
+    gap: 12px;
+    margin-top: 6px;
 }
 
 .welcome-card,
@@ -481,20 +504,48 @@ body {
         0 0 0 1px rgba(16, 94, 0, 0.08);
 }
 
+.info-card {
+    border: 1px solid rgba(16, 94, 0, 0.22);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 0 0 1px rgba(16, 94, 0, 0.08);
+}
+
 .overview-card,
 .scroll-card {
     position: relative;
     cursor: pointer;
 }
 
+.info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 100%;
+}
+
+.info-panel .info-card {
+    padding: 10px;
+    gap: 8px;
+}
+
 .overview-card img,
-.scroll-card img {
+.scroll-card img,
+.info-card img {
     position: relative;
     z-index: 1;
     width: 100%;
-    height: 84px;
+    height: clamp(96px, 11vw, 148px);
     object-fit: cover;
     border-radius: 12px;
+}
+
+.info-panel .info-card img {
+    height: clamp(72px, 8vw, 108px);
+}
+
+.info-panel .compact-info-card img {
+    height: clamp(78px, 8.5vw, 118px);
 }
 
 .overview-card-body,
@@ -505,6 +556,20 @@ body {
     flex-direction: column;
     gap: 6px;
     padding-top: 10px;
+}
+
+.compact-info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-panel .compact-info-card {
+    gap: 6px;
+}
+
+.compact-info-card h4 {
+    margin: 0;
 }
 
 .overview-meta,
@@ -520,7 +585,7 @@ body {
     min-width: 220px;
     max-width: 220px;
     min-height: 0;
-    padding: 12px;
+    padding: 10px;
     border-radius: var(--radius-md);
     background: rgba(255, 255, 255, 0.16);
     border: 1px solid rgba(16, 94, 0, 0.22);
@@ -530,6 +595,43 @@ body {
     box-shadow:
         inset 0 0 0 1px rgba(255, 255, 255, 0.08),
         0 0 0 1px rgba(16, 94, 0, 0.08);
+}
+
+.hotel-info-scroll-card {
+    flex-basis: 272px;
+    min-width: 272px;
+    max-width: 272px;
+    min-height: 226px;
+}
+
+.hotel-info-scroll-card img {
+    height: 106px;
+}
+
+.hotel-info-scroll-card strong {
+    position: relative;
+    z-index: 1;
+    color: var(--ink);
+    font-size: 0.92rem;
+    line-height: 1.25;
+}
+
+.hotel-info-scroll-card.is-active {
+    border-color: rgba(16, 94, 0, 0.72);
+    background: rgba(235, 255, 232, 0.34);
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+        0 12px 24px rgba(16, 94, 0, 0.12);
+}
+
+.section-scroll-card {
+    flex: 0 0 280px;
+    min-width: 280px;
+    max-width: 280px;
+}
+
+.section-scroll-card img {
+    height: clamp(96px, 10vw, 136px);
 }
 
 .scroll-card h4,
@@ -542,6 +644,15 @@ body {
     overflow: hidden;
 }
 
+.info-panel .info-card h3 {
+    margin: 0 0 4px;
+    font-size: clamp(1.05rem, 1.7vw, 1.55rem);
+}
+
+.info-panel .compact-info-card h4 {
+    font-size: clamp(0.98rem, 1.45vw, 1.28rem);
+}
+
 .scroll-card p,
 .overview-card p,
 .info-card p,
@@ -551,6 +662,11 @@ body {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.info-panel .info-card p {
+    font-size: 0.88rem;
+    line-height: 1.35;
 }
 
 .room-scroll-card.is-active {
@@ -572,6 +688,234 @@ body {
     align-items: stretch;
     min-height: 0;
     flex: 1 1 auto;
+}
+
+.event-detail-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
+    margin-top: 22px;
+    overflow: hidden;
+}
+
+.event-collage {
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-self: stretch;
+}
+
+.event-collage img {
+    width: 100%;
+    height: 100%;
+    min-height: 132px;
+    object-fit: cover;
+    border-radius: 18px;
+}
+
+.event-collage-main {
+    grid-row: 1 / span 2;
+}
+
+.event-detail-content {
+    justify-content: flex-start;
+    gap: 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: 18px;
+    scrollbar-width: thin;
+}
+
+.event-detail-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+
+.event-description {
+    max-width: 58ch;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.event-info-list {
+    display: grid;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.event-info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(16, 94, 0, 0.16);
+}
+
+.event-info-row strong {
+    color: var(--ink);
+    font-size: 0.92rem;
+}
+
+.event-info-row p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.35;
+}
+
+.event-note-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex: 0 0 auto;
+}
+
+.hotel-info-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 1fr);
+    gap: 16px;
+    align-items: stretch;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.hotel-info-collage {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    min-height: 0;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    overflow: hidden;
+    backdrop-filter: blur(22px) saturate(130%);
+    -webkit-backdrop-filter: blur(22px) saturate(130%);
+}
+
+.hotel-info-collage img {
+    width: 100%;
+    height: 100%;
+    min-height: 118px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.hotel-info-collage-main {
+    grid-row: 1 / span 2;
+}
+
+.hotel-info-copy {
+    justify-content: center;
+}
+
+.hotel-info-note-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.hotel-info-note {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(16, 94, 0, 0.16);
+}
+
+.hotel-info-note span {
+    color: var(--accent-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hotel-info-note strong {
+    color: var(--ink);
+    font-size: 0.98rem;
+    line-height: 1.35;
+}
+
+.restaurant-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+    gap: 14px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.restaurant-feature-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+}
+
+.restaurant-feature-card img {
+    height: clamp(180px, 30vh, 320px);
+}
+
+.restaurant-feature-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.restaurant-info-list {
+    display: grid;
+    gap: 10px;
+}
+
+.restaurant-info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(16, 94, 0, 0.16);
+}
+
+.restaurant-info-row strong {
+    color: var(--ink);
+    font-size: 0.95rem;
+}
+
+.restaurant-menu-stack {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    min-height: 0;
+}
+
+.restaurant-menu-card {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: stretch;
+    gap: 18px;
+    padding: 10px;
+}
+
+.restaurant-menu-card img {
+    width: 100%;
+    height: 100%;
+    min-height: 118px;
+    max-height: 132px;
+    object-fit: cover;
+}
+
+.restaurant-menu-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    padding-right: 10px;
 }
 
 .detail-gallery,
@@ -605,12 +949,17 @@ body {
     flex-direction: column;
     gap: 12px;
     justify-content: space-between;
+    min-height: 0;
 }
 
 .detail-scroll-body {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
 }
 
 .detail-meta {
@@ -633,7 +982,7 @@ body {
 }
 
 .detail-meta-primary div {
-    min-height: 84px;
+    min-height: 68px;
     justify-content: center;
 }
 
@@ -663,6 +1012,7 @@ body {
 }
 
 .detail-actions {
+    flex: 0 0 auto;
     padding-top: 4px;
     margin-top: auto;
     justify-content: flex-start;
@@ -873,6 +1223,8 @@ body {
 
 @media (max-width: 920px) {
     .detail-grid,
+    .restaurant-layout,
+    .hotel-info-detail,
     .detail-note-grid,
     .welcome-grid,
     .overview-grid,
@@ -902,6 +1254,51 @@ body {
 
     .overview-grid,
     .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .restaurant-feature-card img {
+        height: 180px;
+    }
+
+    .restaurant-menu-card {
+        grid-template-columns: 1fr;
+    }
+
+    .restaurant-menu-card img {
+        min-height: 110px;
+        max-height: 140px;
+    }
+
+    .hotel-info-collage {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+    }
+
+    .hotel-info-collage-main {
+        grid-row: auto;
+    }
+
+    .hotel-info-collage img {
+        min-height: 120px;
+        max-height: 170px;
+    }
+
+    .event-collage {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+    }
+
+    .event-collage-main {
+        grid-row: auto;
+    }
+
+    .event-collage img {
+        min-height: 120px;
+        max-height: 170px;
+    }
+
+    .event-note-grid {
         grid-template-columns: 1fr;
     }
 

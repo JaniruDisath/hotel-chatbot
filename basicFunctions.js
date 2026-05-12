@@ -1,6 +1,7 @@
 const uiState = {
     roomFilter: {},
     selectedRoomId: roomInfo[0] ? roomInfo[0].roomid : null,
+    currentCardListKey: null,
     currentView: {
         section: "greetings",
         mode: "landing"
@@ -45,6 +46,12 @@ function setInfoPanel(html) {
 }
 
 function setCardList(html) {
+    uiState.currentCardListKey = null;
+    document.getElementById("card-list-body").innerHTML = html;
+}
+
+function setCardListWithKey(html, key) {
+    uiState.currentCardListKey = key || null;
     document.getElementById("card-list-body").innerHTML = html;
 }
 
@@ -53,9 +60,13 @@ function setCurrentUiContext(context = {}) {
         section: context.section || "greetings",
         mode: context.mode || "landing",
         title: context.title || "",
-        selectedId: context.selectedId || null,
+        selectedId: context.selectedId ?? null,
         filters: context.filters || {}
     };
+
+    if (typeof window.setAiSectionFocus === "function") {
+        window.setAiSectionFocus(uiState.currentView);
+    }
 }
 
 function getCurrentUiContext() {
@@ -66,6 +77,17 @@ function getCurrentUiContext() {
         selectedId: uiState.currentView.selectedId,
         filters: { ...uiState.currentView.filters }
     };
+}
+
+async function goHome() {
+    loadGreetings();
+
+    if (typeof window.sendSystemMessage === "function") {
+        await window.sendSystemMessage("System : User returned to home page. Focus on greetings, overview guidance, and helping them choose the next section.", {
+            silentReply: true,
+            silentError: true
+        });
+    }
 }
 
 function sendMessage() {
@@ -150,14 +172,46 @@ function renderSectionHero(title, subtitle, badge, actionsHtml) {
         <section class="hero-panel" data-aos="fade-up" data-aos-duration="700">
             <span class="hero-badge">${escapeHtml(badge)}</span>
             <h2 class="hero-title">${escapeHtml(title)}</h2>
-            <p class="hero-subtitle">${escapeHtml(subtitle)}</p>
-            <div class="hero-actions">${actionsHtml || ""}</div>
+            ${subtitle ? `<p class="hero-subtitle">${escapeHtml(subtitle)}</p>` : ""}
+            ${actionsHtml ? `<div class="hero-actions">${actionsHtml}</div>` : ""}
         </section>
     `;
 }
 
 function renderTagList(items) {
     return items.map((item) => `<span class="tag-pill">${escapeHtml(item)}</span>`).join("");
+}
+
+function renderEventFeatureButtons(eventPack) {
+    return eventPack.features.map((feature, index) => `
+        <button type="button" class="tag-pill tag-button" onclick="askEventFeature(${eventPack.id}, ${index})">${escapeHtml(feature)}</button>
+    `).join("");
+}
+
+function renderEventCollage(eventPack) {
+    const gallery = (eventPack.gallery && eventPack.gallery.length ? eventPack.gallery : [eventPack.image]).slice(0, 3);
+    const fallbackImage = gallery[0] || eventPack.image;
+
+    return gallery.map((image, index) => `
+        <img class="${index === 0 ? "event-collage-main" : ""}" src="${image || fallbackImage}" alt="${escapeHtml(eventPack.name)} ${index + 1}">
+    `).join("");
+}
+
+function renderHotelInfoCardList(selectedId = 0) {
+    const cards = hotelInfoCards.map((item) => `
+        <article class="scroll-card hotel-info-scroll-card ${Number(item.id) === Number(selectedId) ? "is-active" : ""}" onclick="loadMainHotelInfo(${item.id})" data-aos="fade-up" data-aos-duration="600">
+            ${renderDoodleLayer("card-doodle-bg")}
+            <img src="${item.image}" alt="${escapeHtml(item.title)} preview" loading="eager">
+            <div class="scroll-card-body">
+                <span class="mini-badge">hotel info</span>
+                <h4>${escapeHtml(item.title)}</h4>
+                <strong>${escapeHtml(item.value)}</strong>
+                <p>${escapeHtml(item.detail)}</p>
+            </div>
+        </article>
+    `).join("");
+
+    setCardListWithKey(cards, "hotel-info-cards");
 }
 
 function renderPromptButtons(items) {
@@ -251,7 +305,17 @@ function bookRoom(roomId) {
         return;
     }
 
-    sendBotMessage(`Great choice. I can help continue with ${room.roomName}. Tell me your dates and guest count to move forward.`);
+    alert("A member of our customer care team will contact you soon.");
+}
+
+function bookDayout(packageId) {
+    const pack = dayoutPackages.find((item) => item.id === Number(packageId));
+
+    if (!pack) {
+        return;
+    }
+
+    alert("A member of our customer care team will contact you soon.");
 }
 
 function loadRoomEmptyState() {
@@ -327,21 +391,21 @@ function loadHotelRoomsMainPanel(id) {
                         <div class="tag-row">${renderTagList(room.features)}</div>
                     </div>
                     <div class="detail-note-grid">
-                        <div class="detail-note">
+                        <div class="detail-note" data-aos="fade-up" data-aos-duration="600" data-aos-delay="220">
                             <h4>Inclusions</h4>
                             <p>${escapeHtml(room.freePerks)}</p>
                         </div>
-                        <div class="detail-note">
+                        <div class="detail-note" data-aos="fade-up" data-aos-duration="600" data-aos-delay="280">
                             <h4>Amenities</h4>
                             <p>${escapeHtml(room.amenities)}</p>
                         </div>
-                        <div class="detail-note">
+                        <div class="detail-note" data-aos="fade-up" data-aos-duration="600" data-aos-delay="340">
                             <h4>Cancellation</h4>
                             <p>${escapeHtml(room.Cancellation)}</p>
                         </div>
                     </div>
                 </div>
-                <div class="hero-actions detail-actions">
+                <div class="hero-actions detail-actions" data-aos="fade-up" data-aos-duration="600" data-aos-delay="400">
                     <button class="action-btn" onclick="bookRoom(${room.roomid})">Book ${escapeHtml(room.roomName)}</button>
                     <button class="ghost-btn" onclick="resetRoomFilter()">All Rooms</button>
                 </div>
@@ -411,8 +475,8 @@ function loadGreetings() {
 }
 
 function loadMenuList() {
-    const listHtml = menuList.map((item) => `
-        <article class="scroll-card menu-scroll-card" onclick="${item.methodCall}; ${item.systemSendMessage}" data-aos="fade-up" data-aos-duration="600">
+    const listHtml = menuList.map((item, index) => `
+        <article class="scroll-card menu-scroll-card" onclick="openMenuSection(${index})" data-aos="fade-up" data-aos-duration="600">
             ${renderDoodleLayer("card-doodle-bg")}
             <img src="${item.image}" alt="${escapeHtml(item.name)}">
             <div class="scroll-card-body">
@@ -423,6 +487,28 @@ function loadMenuList() {
     `).join("");
 
     setCardList(listHtml);
+}
+
+async function openMenuSection(index) {
+    const item = menuList[index];
+
+    if (!item) {
+        return;
+    }
+
+    resetChatVisual();
+
+    if (item.actionName && typeof window[item.actionName] === "function") {
+        window[item.actionName]();
+    }
+
+    if (item.chatMessage) {
+        sendBotMessage(item.chatMessage);
+    }
+
+    if (item.systemPrompt && typeof window.sendSystemMessage === "function") {
+        await window.sendSystemMessage(item.systemPrompt, { silentReply: true });
+    }
 }
 
 function loadRoomInfoPanel() {
@@ -468,7 +554,11 @@ function openRoomCategory(type) {
     applyRoomFilter({ roomType: type });
 }
 
-function renderPackageList(packages, selectHandlerName, statusText) {
+function renderPackageList(packages, selectHandlerName, statusText, options = {}) {
+    if (options.cacheKey && uiState.currentCardListKey === options.cacheKey) {
+        return;
+    }
+
     const cards = packages.map((item) => `
         <article class="scroll-card package-scroll-card" onclick="${selectHandlerName}(${item.id})" data-aos="fade-up" data-aos-duration="600">
             ${renderDoodleLayer("card-doodle-bg")}
@@ -480,13 +570,13 @@ function renderPackageList(packages, selectHandlerName, statusText) {
         </article>
     `).join("");
 
-    setCardList(`
-        <div class="section-status-card">
+    setCardListWithKey(`
+        <div class="section-status-card" data-aos="fade-up" data-aos-duration="600">
             <strong>${escapeHtml(statusText)}</strong>
-            <p>Dummy content to complete the full chatbot-led flow.</p>
+            <p>Browse the available packages below and open one to compare pricing, timing, and included experiences.</p>
         </div>
         ${cards}
-    `);
+    `, options.cacheKey);
 }
 
 function loadDayout(selectedId = 0) {
@@ -503,33 +593,37 @@ function loadDayout(selectedId = 0) {
     setInfoPanel(`
         ${renderSectionHero(
             pack.name,
-            pack.summary,
+            "",
             "dayout",
-            `<button class="action-btn" onclick="sendSystemMessage('System : user asked about dayout package ${escapeHtml(pack.name)}')">Ask About This Package</button>`
+            ``
         )}
-        <section class="detail-grid">
-            <div class="detail-gallery">
+        <section class="detail-grid" data-aos="fade-up" data-aos-duration="700">
+            <div class="detail-gallery" data-aos="fade-up" data-aos-duration="700" data-aos-delay="80">
                 <img class="detail-image static-detail-image" src="${pack.image}" alt="${escapeHtml(pack.name)}">
             </div>
-            <div class="detail-content">
-                <h3 class="detail-title">${escapeHtml(pack.price)}</h3>
-                <p class="detail-copy">Duration: ${escapeHtml(pack.duration)}</p>
-                <div class="tag-row">${renderTagList(pack.highlights)}</div>
+            <div class="detail-content" data-aos="fade-up" data-aos-duration="700" data-aos-delay="140">
+                <h3 class="detail-title" data-aos="fade-up" data-aos-duration="600" data-aos-delay="180">${escapeHtml(pack.price)}</h3>
+                <p class="detail-copy" data-aos="fade-up" data-aos-duration="600" data-aos-delay="220">Duration: ${escapeHtml(pack.duration)}</p>
+                <div class="tag-row" data-aos="fade-up" data-aos-duration="600" data-aos-delay="260">${renderTagList(pack.highlights)}</div>
                 <div class="detail-note-grid">
-                    <div class="detail-note">
+                    <div class="detail-note" data-aos="fade-up" data-aos-duration="600" data-aos-delay="240">
                         <h4>Perfect for</h4>
                         <p>Families, friend groups, and guests who want the villa experience without an overnight booking.</p>
                     </div>
-                    <div class="detail-note">
+                    <div class="detail-note" data-aos="fade-up" data-aos-duration="600" data-aos-delay="240">
                         <h4>What's included</h4>
                         <p>${escapeHtml(pack.highlights.join(", "))}</p>
                     </div>
+                </div>
+                <div class="hero-actions detail-actions" data-aos="fade-up" data-aos-duration="600" data-aos-delay="300">
+                    <button class="action-btn" onclick="bookDayout(${pack.id})">Book ${escapeHtml(pack.name)}</button>
+                    <button class="ghost-btn" onclick="loadDayout()">All Packages</button>
                 </div>
             </div>
         </section>
     `);
 
-    renderPackageList(dayoutPackages, "loadDayout", "Showing day-out packages");
+    renderPackageList(dayoutPackages, "loadDayout", "Showing day-out packages", { cacheKey: "dayout-packages" });
 }
 
 function loadRestaurantInfo(selectedId = 0) {
@@ -542,11 +636,14 @@ function loadRestaurantInfo(selectedId = 0) {
         filters: {}
     });
     const menuItemsHtml = section.items.map((item) => `
-        <div class="info-card compact-info-card">
+        <div class="info-card compact-info-card restaurant-menu-card" data-aos="fade-up" data-aos-duration="600">
             ${renderDoodleLayer("card-doodle-bg")}
-            <span class="mini-badge">${escapeHtml(item.tag)}</span>
-            <h4>${escapeHtml(item.name)}</h4>
-            <p>${escapeHtml(item.price)}</p>
+            <img src="${item.image}" alt="${escapeHtml(item.name)}" loading="eager" fetchpriority="high">
+            <div class="restaurant-menu-copy">
+                <span class="mini-badge">${escapeHtml(item.tag)}</span>
+                <h4>${escapeHtml(item.name)}</h4>
+                <p>${escapeHtml(item.price)}</p>
+            </div>
         </div>
     `).join("");
 
@@ -555,82 +652,100 @@ function loadRestaurantInfo(selectedId = 0) {
             section.name,
             section.summary,
             "restaurant",
-            `<button class="action-btn" onclick="sendSystemMessage('System : user asked about restaurant ${escapeHtml(section.mealType)}')">Ask About ${escapeHtml(section.name)}</button>`
+            ``
         )}
-        <section class="info-grid">
-            <div class="info-card">
+        <section class="restaurant-layout">
+            <article class="info-card restaurant-feature-card" data-aos="fade-up" data-aos-duration="600">
                 ${renderDoodleLayer("card-doodle-bg")}
-                <h3>Service Style</h3>
-                <p>${escapeHtml(section.feature)}</p>
+                <img src="${section.serviceImage}" alt="${escapeHtml(section.name)} dining overview" loading="eager" fetchpriority="high">
+                <div class="restaurant-feature-body">
+                    <span class="mini-badge">Dining Info</span>
+                    <h3>${escapeHtml(section.name)} Service</h3>
+                    <div class="restaurant-info-list">
+                        <div class="restaurant-info-row">
+                            <strong>Service Style</strong>
+                            <p>Buffet, Room service, and Takeaway</p>
+                        </div>
+                        <div class="restaurant-info-row">
+                            <strong>Hours</strong>
+                            <p>Stay-in guests: 5:30 A.M. to 11:00 P.M.</p>
+                        </div>
+                        <div class="restaurant-info-row">
+                            <strong>Public Dining</strong>
+                            <p>Available from 8:30 A.M. with dine-in and takeaway options.</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <div class="restaurant-menu-stack">
+                ${menuItemsHtml}
             </div>
-            <div class="info-card">
-                ${renderDoodleLayer("card-doodle-bg")}
-                <h3>Hours</h3>
-                <p>Stay-in guests: 5:30 A.M. to 11:00 P.M.</p>
-            </div>
-            <div class="info-card">
-                ${renderDoodleLayer("card-doodle-bg")}
-                <h3>Public Dining</h3>
-                <p>Available from 8:30 A.M. with dine-in and takeaway options.</p>
-            </div>
-        </section>
-        <section class="info-grid">
-            ${menuItemsHtml}
         </section>
     `);
 
-    const cards = restaurantSections.map((item) => `
-        <article class="scroll-card package-scroll-card" onclick="loadRestaurantInfo(${item.id})" data-aos="fade-up" data-aos-duration="600">
-            <div class="scroll-card-body">
-                <h4>${escapeHtml(item.name)}</h4>
-                <p>${escapeHtml(item.summary)}</p>
-            </div>
-        </article>
-    `).join("");
+    if (uiState.currentCardListKey !== "restaurant-sections") {
+        const cards = restaurantSections.map((item) => `
+            <article class="scroll-card package-scroll-card section-scroll-card" onclick="loadRestaurantInfo(${item.id})" data-aos="fade-up" data-aos-duration="600">
+                <img src="${item.serviceImage}" alt="${escapeHtml(item.name)} section image" loading="eager">
+                <div class="scroll-card-body">
+                    <h4>${escapeHtml(item.name)}</h4>
+                </div>
+            </article>
+        `).join("");
 
-    setCardList(cards);
+        setCardListWithKey(cards, "restaurant-sections");
+    }
 }
 
-function loadMainHotelInfo() {
+function loadMainHotelInfo(selectedId = 0) {
+    const info = hotelInfoCards.find((item) => Number(item.id) === Number(selectedId)) || hotelInfoCards[0];
+    const collage = (info.collage && info.collage.length ? info.collage : [info.image]).slice(0, 3);
+    const noteRows = (info.notes || []).map((note) => `
+        <div class="hotel-info-note">
+            <span>${escapeHtml(note.label)}</span>
+            <strong>${escapeHtml(note.text)}</strong>
+        </div>
+    `).join("");
+
     setCurrentUiContext({
         section: "hotelinfo",
-        mode: "overview",
-        title: "Everything at a glance",
+        mode: "detail",
+        title: info.title,
+        selectedId: info.id,
         filters: {}
     });
 
-    const cards = hotelInfoCards.map((item) => `
-        <article class="info-card" data-aos="fade-up" data-aos-duration="600">
-            ${renderDoodleLayer("card-doodle-bg")}
-            <span class="mini-badge">hotel info</span>
-            <h3>${escapeHtml(item.title)}</h3>
-            <strong>${escapeHtml(item.value)}</strong>
-            <p>${escapeHtml(item.detail)}</p>
-        </article>
-    `).join("");
-
     setInfoPanel(`
         ${renderSectionHero(
-            "Everything at a glance",
-            "A simple info wall for opening times, facilities, and contact details while the richer booking flow is still being built.",
+            info.title,
+            info.detail,
             "hotel info",
-            `<button class="action-btn" onclick="loadRoomInfoPanel()">Check Rooms</button>`
+            `<button class="action-btn" onclick="sendSystemMessage('System : user asked about hotel info ${escapeHtml(info.title)}')">Ask About This</button>`
         )}
-        <section class="info-grid">
-            ${cards}
+        <section class="hotel-info-detail" data-aos="fade-up" data-aos-duration="700">
+            <div class="hotel-info-collage" data-aos="fade-right" data-aos-duration="700" data-aos-delay="80">
+                <img class="hotel-info-collage-main" src="${collage[0]}" alt="${escapeHtml(info.title)} main image">
+                <img src="${collage[1] || collage[0]}" alt="${escapeHtml(info.title)} supporting image 1">
+                <img src="${collage[2] || collage[0]}" alt="${escapeHtml(info.title)} supporting image 2">
+            </div>
+            <div class="hotel-info-copy detail-content" data-aos="fade-left" data-aos-duration="700" data-aos-delay="140">
+                <span class="hero-badge">${escapeHtml(info.title)}</span>
+                <h3 class="detail-title">${escapeHtml(info.value)}</h3>
+                <p class="detail-copy">${escapeHtml(info.summary || info.detail)}</p>
+                <div class="tag-row">${renderTagList(info.highlights || [])}</div>
+                <div class="hotel-info-note-grid">
+                    ${noteRows}
+                </div>
+            </div>
         </section>
     `);
 
-    setCardList(`
-        <div class="section-status-card">
-            <strong>Hotel facts loaded</strong>
-            <p>Ask the assistant about facilities, pricing, restaurant, contact, or pool timing.</p>
-        </div>
-    `);
+    renderHotelInfoCardList(info.id);
 }
 
 function loadEventInfo(selectedId = 0) {
     const eventPack = eventPackages.find((item) => item.id === Number(selectedId)) || eventPackages[0];
+    const facilityList = eventPack.features.join(", ");
 
     setCurrentUiContext({
         section: "event",
@@ -643,26 +758,43 @@ function loadEventInfo(selectedId = 0) {
     setInfoPanel(`
         ${renderSectionHero(
             eventPack.name,
-            eventPack.summary,
+            "",
             "events",
-            `<button class="action-btn" onclick="sendSystemMessage('System : user asked about event ${escapeHtml(eventPack.eventType)}')">Ask About This Event</button>`
+            ""
         )}
-        <section class="detail-grid">
-            <div class="detail-gallery">
-                <img class="detail-image static-detail-image" src="${eventPack.image}" alt="${escapeHtml(eventPack.name)}">
+        <section class="detail-grid event-detail-grid" data-aos="fade-up" data-aos-duration="700">
+            <div class="detail-gallery event-collage" data-aos="fade-right" data-aos-duration="700" data-aos-delay="80">
+                ${renderEventCollage(eventPack)}
             </div>
-            <div class="detail-content">
-                <h3 class="detail-title">${escapeHtml(eventPack.capacity)}</h3>
-                <p class="detail-copy">${escapeHtml(eventPack.price)}</p>
-                <div class="tag-row">${renderTagList(eventPack.features)}</div>
-                <div class="detail-note-grid">
-                    <div class="detail-note">
+            <div class="detail-content event-detail-content" data-aos="fade-left" data-aos-duration="700" data-aos-delay="140">
+                <div class="event-detail-summary">
+                    <h3 class="detail-title" data-aos="fade-up" data-aos-duration="600" data-aos-delay="180">${escapeHtml(eventPack.capacity)}</h3>
+                    <p class="detail-copy" data-aos="fade-up" data-aos-duration="600" data-aos-delay="220">${escapeHtml(eventPack.price)}</p>
+                    <p class="event-description" data-aos="fade-up" data-aos-duration="600" data-aos-delay="240">${escapeHtml(eventPack.summary)}</p>
+                </div>
+                <div class="tag-row" data-aos="fade-up" data-aos-duration="600" data-aos-delay="260">${renderEventFeatureButtons(eventPack)}</div>
+                <div class="event-info-list" data-aos="fade-up" data-aos-duration="600" data-aos-delay="280">
+                    <div class="event-info-row">
+                        <strong>Planning flow</strong>
+                        <p>${escapeHtml(eventPack.planning)}</p>
+                    </div>
+                    <div class="event-info-row">
+                        <strong>Suggested timing</strong>
+                        <p>${escapeHtml(eventPack.timing)}</p>
+                    </div>
+                    <div class="event-info-row">
+                        <strong>On-site support</strong>
+                        <p>${escapeHtml(eventPack.service)}</p>
+                    </div>
+                </div>
+                <div class="detail-note-grid event-note-grid">
+                    <div class="detail-note" data-aos="fade-up" data-aos-duration="600" data-aos-delay="300">
                         <h4>Event style</h4>
                         <p>${escapeHtml(eventPack.eventType)}</p>
                     </div>
-                    <div class="detail-note">
+                    <div class="detail-note" data-aos="fade-up" data-aos-duration="600" data-aos-delay="360">
                         <h4>Included facilities</h4>
-                        <p>${escapeHtml(eventPack.features.join(", "))}</p>
+                        <p>${escapeHtml(facilityList)}</p>
                     </div>
                 </div>
             </div>
@@ -687,5 +819,18 @@ window.sendQuickPrompt = function sendQuickPrompt(promptText) {
     sendHotelMessage();
 };
 
+window.askEventFeature = async function askEventFeature(eventId, featureIndex) {
+    const eventPack = eventPackages.find((item) => item.id === Number(eventId)) || eventPackages[0];
+    const feature = eventPack.features[featureIndex];
+
+    if (!feature || typeof window.sendSystemMessage !== "function") {
+        return;
+    }
+
+    await window.sendSystemMessage(`System : User clicked the ${feature} keyword for ${eventPack.name}. Give a helpful, short explanation in the chat about how ${feature} is included in this ${eventPack.eventType} event package.`);
+};
+
 window.resetChatVisual = resetChatVisual;
 window.getCurrentUiContext = getCurrentUiContext;
+window.openMenuSection = openMenuSection;
+window.goHome = goHome;
